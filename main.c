@@ -53,6 +53,8 @@ void addCity();
 void renameCity();
 void removeCity();
 void displayCities();
+void inputDistance();
+void displayDistanceTable();
 
 int main() {
     initializeSystem();
@@ -280,8 +282,88 @@ void displayCities() {
 }
 
 void distanceManagement() {
-    printf("\n--- DISTANCE MANAGEMENT ---\n");
-    printf("Feature coming soon...\n");
+    int choice;
+    do {
+        printf("\n--- DISTANCE MANAGEMENT ---\n");
+        printf("1. Input/Edit Distance\n");
+        printf("2. Display Distance Table\n");
+        printf("3. Back to Main Menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1:
+                inputDistance();
+                break;
+            case 2:
+                displayDistanceTable();
+                break;
+            case 3:
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while(choice != 3);
+}
+
+void inputDistance() {
+    if(city_count < 2) {
+        printf("Need at least 2 cities to set distances!\n");
+        return;
+    }
+
+    displayCities();
+    int city1, city2;
+    float distance;
+
+    printf("Enter source city index: ");
+    scanf("%d", &city1);
+    printf("Enter destination city index: ");
+    scanf("%d", &city2);
+
+    if(city1 < 0 || city1 >= city_count || city2 < 0 || city2 >= city_count) {
+        printf("Invalid city indices!\n");
+        return;
+    }
+
+    if(city1 == city2) {
+        printf("Distance from a city to itself is always 0!\n");
+        return;
+    }
+
+    printf("Enter distance between %s and %s (km): ", cities[city1], cities[city2]);
+    scanf("%f", &distance);
+
+    if(distance < 0) {
+        printf("Distance cannot be negative!\n");
+        return;
+    }
+
+    distances[city1][city2] = distance;
+    distances[city2][city1] = distance;
+    printf("Distance updated successfully!\n");
+}
+
+void displayDistanceTable() {
+    if(city_count == 0) {
+        printf("No cities available!\n");
+        return;
+    }
+
+    printf("\n--- DISTANCE TABLE (km) ---\n");
+    printf("%-15s", "");
+    for(int i = 0; i < city_count; i++) {
+        printf("%-15s", cities[i]);
+    }
+    printf("\n");
+
+    for(int i = 0; i < city_count; i++) {
+        printf("%-15s", cities[i]);
+        for(int j = 0; j < city_count; j++) {
+            printf("%-15.2f", distances[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 void vehicleManagement() {
