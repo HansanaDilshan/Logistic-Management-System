@@ -56,7 +56,7 @@ void displayCities();
 void inputDistance();
 void displayDistanceTable();
 void findLeastCostRoute(int source, int destination, int* path, int* path_length, float* min_distance);
-float calculateDeliveryCost(int source, int destination, int vehicle_type, float weight);
+void completeDelivery(int source, int destination, int vehicle_type, float weight, float distance);
 
 int main() {
     initializeSystem();
@@ -470,7 +470,8 @@ void deliveryRequest() {
     printf("Vehicle: %s\n", vehicles[vehicle_type - 1].type);
     printf("Weight: %.2f kg\n", weight);
     printf("==============================================================\n");
-    printf("Base Cost: %.2f LKR\n", base_cost);
+    printf("Base Cost: %.2f × %.2f × (1 + %.2f/10000) = %.2f LKR\n",
+           min_distance, vehicles[vehicle_type - 1].rate_per_km, weight, base_cost);
     printf("Fuel Used: %.2f L\n", fuel_used);
     printf("Fuel Cost: %.2f LKR\n", fuel_cost);
     printf("Operational Cost: %.2f LKR\n", operational_cost);
@@ -478,6 +479,15 @@ void deliveryRequest() {
     printf("Customer Charge: %.2f LKR\n", customer_charge);
     printf("Estimated Time: %.2f hours\n", delivery_time);
     printf("==============================================================\n");
+
+    char confirm;
+    printf("Complete this delivery? (y/n): ");
+    scanf(" %c", &confirm);
+
+    if(confirm == 'y' || confirm == 'Y') {
+        completeDelivery(source, destination, vehicle_type, weight, min_distance);
+        printf("Delivery completed and recorded!\n");
+    }
 }
 
 void findLeastCostRoute(int source, int destination, int* path, int* path_length, float* min_distance) {
@@ -527,14 +537,73 @@ void findLeastCostRoute(int source, int destination, int* path, int* path_length
     }
 }
 
-float calculateDeliveryCost(int source, int destination, int vehicle_type, float weight) {
-    float distance = distances[source][destination];
-    return distance * vehicles[vehicle_type - 1].rate_per_km * (1 + weight / 10000.0);
+void completeDelivery(int source, int destination, int vehicle_type, float weight, float distance) {
+    Delivery* delivery = &deliveries[delivery_count];
+
+    delivery->id = delivery_count + 1;
+    strcpy(delivery->source, cities[source]);
+    strcpy(delivery->destination, cities[destination]);
+    delivery->weight = weight;
+    strcpy(delivery->vehicle_type, vehicles[vehicle_type - 1].type);
+    delivery->distance = distance;
+
+    delivery->base_cost = distance * vehicles[vehicle_type - 1].rate_per_km * (1 + weight / 10000.0);
+    delivery->fuel_used = distance / vehicles[vehicle_type - 1].fuel_efficiency;
+    delivery->fuel_cost = delivery->fuel_used * FUEL_PRICE;
+    delivery->operational_cost = delivery->base_cost + delivery->fuel_cost;
+    delivery->profit = delivery->base_cost * 0.25;
+    delivery->customer_charge = delivery->operational_cost + delivery->profit;
+    delivery->delivery_time = distance / vehicles[vehicle_type - 1].avg_speed;
+    delivery->completed = 1;
+
+    delivery_count++;
 }
 
 void performanceReports() {
     printf("\n--- PERFORMANCE REPORTS ---\n");
-    printf("Feature coming soon...\n");
+
+    if(delivery_count == 0) {
+        printf("No deliveries completed yet.\n");
+        return;
+    }
+
+    float total_distance = 0;
+    float total_time = 0;
+    float total_revenue = 0;
+    float total_profit = 0;
+    float longest_route = 0;
+    float shortest_route = 0;
+    int first_delivery = 1;
+
+    for(int i = 0; i < delivery_count; i++) {
+        if(deliveries[i].completed) {
+            total_distance += deliveries[i].distance;
+            total_time += deliveries[i].delivery_time;
+            total_revenue += deliveries[i].customer_charge;
+            total_profit += deliveries[i].profit;
+
+            if(first_delivery) {
+                longest_route = deliveries[i].distance;
+                shortest_route = deliveries[i].distance;
+                first_delivery = 0;
+            } else {
+                if(deliveries[i].distance > longest_route) {
+                    longest_route = deliveries[i].distance;
+                }
+                if(deliveries[i].distance < shortest_route) {
+                    shortest_route = deliveries[i].distance;
+                }
+            }
+        }
+    }
+
+    printf("a. Total Deliveries Completed: %d\n", delivery_count);
+    printf("b. Total Distance Covered: %.2f km\n", total_distance);
+    printf("c. Average Delivery Time: %.2f hours\n", total_time / delivery_count);
+    printf("d. Total Revenue: %.2f LKR\n", total_revenue);
+    printf("e. Total Profit: %.2f LKR\n", total_profit);
+    printf("f. Longest Route: %.2f km\n", longest_route);
+    printf("g. Shortest Route: %.2f km\n", shortest_route);
 }
 
 void saveData() {
