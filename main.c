@@ -32,16 +32,13 @@ typedef struct {
     int completed;
 } Delivery;
 
-
 char cities[MAX_CITIES][MAX_NAME_LENGTH];
 float distances[MAX_CITIES][MAX_CITIES];
 Delivery deliveries[MAX_DELIVERIES];
 Vehicle vehicles[3];
 
-
 int city_count = 0;
 int delivery_count = 0;
-
 
 void initializeSystem();
 void displayMainMenu();
@@ -52,7 +49,10 @@ void deliveryRequest();
 void performanceReports();
 void saveData();
 void loadData();
-
+void addCity();
+void renameCity();
+void removeCity();
+void displayCities();
 
 int main() {
     printf("\n========================================\n");
@@ -62,58 +62,44 @@ int main() {
 
     initializeSystem();
 
-    printf("System ready! Starting main menu...\n");
-
     int choice;
     do {
         displayMainMenu();
-        printf("Enter your choice (1-7): ");
+        printf("Enter your choice: ");
         scanf("%d", &choice);
 
         switch(choice) {
             case 1:
-                printf("\n>>> Navigating to City Management...\n");
                 cityManagement();
                 break;
             case 2:
-                printf("\n>>> Navigating to Distance Management...\n");
                 distanceManagement();
                 break;
             case 3:
-                printf("\n>>> Navigating to Vehicle Management...\n");
                 vehicleManagement();
                 break;
             case 4:
-                printf("\n>>> Navigating to Delivery Request...\n");
                 deliveryRequest();
                 break;
             case 5:
-                printf("\n>>> Navigating to Performance Reports...\n");
                 performanceReports();
                 break;
             case 6:
-                printf("\n>>> Saving system data...\n");
                 saveData();
                 break;
             case 7:
-                printf("\n>>> Saving data and exiting system...\n");
                 saveData();
                 printf("Thank you for using Logistics Management System!\n");
                 break;
             default:
-                printf("Error: Invalid choice! Please enter a number between 1-7.\n");
+                printf("Invalid choice! Please try again.\n");
         }
     } while(choice != 7);
 
     return 0;
 }
 
-
 void initializeSystem() {
-    printf("\n--- SYSTEM INITIALIZATION ---\n");
-
-    printf("Initializing vehicle types...\n");
-
     strcpy(vehicles[0].type, "Van");
     vehicles[0].capacity = 1000;
     vehicles[0].rate_per_km = 30.0;
@@ -132,21 +118,11 @@ void initializeSystem() {
     vehicles[2].avg_speed = 45.0;
     vehicles[2].fuel_efficiency = 4.0;
 
-    printf("✓ Vehicle types initialized: Van, Truck, Lorry\n");
-
-    printf("Initializing default cities...\n");
-
     strcpy(cities[0], "Colombo");
     strcpy(cities[1], "Kandy");
     strcpy(cities[2], "Galle");
     strcpy(cities[3], "Jaffna");
-    strcpy(cities[4], "Matara");
-    strcpy(cities[5], "Anuradhapura");
-    city_count = 6;
-
-    printf("✓ Cities initialized: %d cities loaded\n", city_count);
-
-    printf("Initializing distance matrix...\n");
+    city_count = 4;
 
     for(int i = 0; i < MAX_CITIES; i++) {
         for(int j = 0; j < MAX_CITIES; j++) {
@@ -157,43 +133,11 @@ void initializeSystem() {
     distances[0][1] = distances[1][0] = 120;
     distances[0][2] = distances[2][0] = 115;
     distances[0][3] = distances[3][0] = 400;
-    distances[0][4] = distances[4][0] = 150;
-    distances[0][5] = distances[5][0] = 200;
-
     distances[1][2] = distances[2][1] = 200;
     distances[1][3] = distances[3][1] = 350;
-    distances[1][4] = distances[4][1] = 250;
-    distances[1][5] = distances[5][1] = 120;
 
-    distances[2][4] = distances[4][2] = 40;
-    distances[2][5] = distances[5][2] = 280;
-
-    distances[3][5] = distances[5][3] = 250;
-
-    printf("✓ Distance matrix initialized: %dx%d grid\n", MAX_CITIES, MAX_CITIES);
-
-    printf("Initializing delivery system...\n");
-    delivery_count = 0;
-
-    for(int i = 0; i < MAX_DELIVERIES; i++) {
-        deliveries[i].id = 0;
-        deliveries[i].completed = 0;
-    }
-
-    printf("✓ Delivery system ready for %d records\n", MAX_DELIVERIES);
-
-    printf("\n--- SYSTEM STATUS ---\n");
-    printf("• Data Structures: READY\n");
-    printf("• Vehicle Types: %d initialized\n", 3);
-    printf("• Cities: %d/%d loaded\n", city_count, MAX_CITIES);
-    printf("• Distance Matrix: %dx%d initialized\n", MAX_CITIES, MAX_CITIES);
-    printf("• Delivery Capacity: %d records\n", MAX_DELIVERIES);
-    printf("• Current Deliveries: %d\n", delivery_count);
-    printf("• Fuel Price: LKR %.2f per liter\n", FUEL_PRICE);
-    printf("----------------------------------------\n");
-    printf("System initialization completed successfully!\n");
+    printf("System initialized successfully!\n");
 }
-
 
 void displayMainMenu() {
     printf("\n========================================\n");
@@ -205,57 +149,151 @@ void displayMainMenu() {
     printf("4. Delivery Request\n");
     printf("5. Performance Reports\n");
     printf("6. Save Data\n");
-    printf("7. Exit System\n");
+    printf("7. Exit\n");
     printf("========================================\n");
 }
 
 void cityManagement() {
-    printf("\n--- CITY MANAGEMENT MODULE ---\n");
-    printf("Current cities in system: %d\n\n", city_count);
+    int choice;
+    do {
+        printf("\n--- CITY MANAGEMENT ---\n");
+        printf("1. Add City\n");
+        printf("2. Rename City\n");
+        printf("3. Remove City\n");
+        printf("4. Display Cities\n");
+        printf("5. Back to Main Menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
 
-    printf("%-4s %-20s %s\n", "No.", "City Name", "Status");
-    printf("----------------------------------------\n");
-    for(int i = 0; i < city_count; i++) {
-        printf("%-4d %-20s %s\n", i, cities[i], "Active");
+        switch(choice) {
+            case 1:
+                addCity();
+                break;
+            case 2:
+                renameCity();
+                break;
+            case 3:
+                removeCity();
+                break;
+            case 4:
+                displayCities();
+                break;
+            case 5:
+                printf("Returning to main menu...\n");
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while(choice != 5);
+}
+
+void addCity() {
+    if(city_count >= MAX_CITIES) {
+        printf("Maximum number of cities reached!\n");
+        return;
     }
 
-    printf("\nModule Features:\n");
-    printf("• Add new cities (Capacity: %d/%d)\n", city_count, MAX_CITIES);
-    printf("• Rename existing cities\n");
-    printf("• Remove cities from system\n");
-    printf("• Display city information\n");
-    printf("\nFeature implementation: IN PROGRESS\n");
+    char cityName[MAX_NAME_LENGTH];
+    printf("Enter city name: ");
+    scanf(" %[^\n]", cityName);
+
+    for(int i = 0; i < city_count; i++) {
+        if(strcmp(cities[i], cityName) == 0) {
+            printf("City '%s' already exists!\n", cityName);
+            return;
+        }
+    }
+
+    strcpy(cities[city_count], cityName);
+    city_count++;
+    printf("City '%s' added successfully!\n", cityName);
+}
+
+void renameCity() {
+    if(city_count == 0) {
+        printf("No cities available!\n");
+        return;
+    }
+
+    displayCities();
+    int index;
+    printf("Enter city index to rename: ");
+    scanf("%d", &index);
+
+    if(index < 0 || index >= city_count) {
+        printf("Invalid city index!\n");
+        return;
+    }
+
+    char newName[MAX_NAME_LENGTH];
+    printf("Enter new name for %s: ", cities[index]);
+    scanf(" %[^\n]", newName);
+
+    for(int i = 0; i < city_count; i++) {
+        if(i != index && strcmp(cities[i], newName) == 0) {
+            printf("City '%s' already exists!\n", newName);
+            return;
+        }
+    }
+
+    printf("City '%s' renamed to '%s'\n", cities[index], newName);
+    strcpy(cities[index], newName);
+}
+
+void removeCity() {
+    if(city_count == 0) {
+        printf("No cities available!\n");
+        return;
+    }
+
+    displayCities();
+    int index;
+    printf("Enter city index to remove: ");
+    scanf("%d", &index);
+
+    if(index < 0 || index >= city_count) {
+        printf("Invalid city index!\n");
+        return;
+    }
+
+    printf("City '%s' removed successfully!\n", cities[index]);
+
+    for(int i = index; i < city_count - 1; i++) {
+        strcpy(cities[i], cities[i + 1]);
+    }
+    city_count--;
+
+    for(int i = index; i < city_count; i++) {
+        for(int j = 0; j < MAX_CITIES; j++) {
+            distances[i][j] = distances[i + 1][j];
+        }
+    }
+    for(int j = index; j < city_count; j++) {
+        for(int i = 0; i < MAX_CITIES; i++) {
+            distances[i][j] = distances[i][j + 1];
+        }
+    }
+}
+
+void displayCities() {
+    printf("\n--- CITIES LIST ---\n");
+    if(city_count == 0) {
+        printf("No cities available.\n");
+        return;
+    }
+
+    for(int i = 0; i < city_count; i++) {
+        printf("%d. %s\n", i, cities[i]);
+    }
 }
 
 void distanceManagement() {
-    printf("\n--- DISTANCE MANAGEMENT MODULE ---\n");
-    printf("Distance Matrix Overview:\n\n");
-
-    printf("%-15s", "Cities");
-    for(int i = 0; i < city_count && i < 5; i++) {
-        printf("%-10s", cities[i]);
-    }
-    printf("\n");
-
-    for(int i = 0; i < city_count && i < 5; i++) {
-        printf("%-15s", cities[i]);
-        for(int j = 0; j < city_count && j < 5; j++) {
-            printf("%-10.0f", distances[i][j]);
-        }
-        printf("\n");
-    }
-
-    printf("\nModule Features:\n");
-    printf("• Input/Edit distances between cities\n");
-    printf("• Display complete distance table\n");
-    printf("• Automatic symmetrical distance updates\n");
-    printf("\nFeature implementation: IN PROGRESS\n");
+    printf("\n--- DISTANCE MANAGEMENT ---\n");
+    printf("Feature coming soon...\n");
 }
 
 void vehicleManagement() {
-    printf("\n--- VEHICLE MANAGEMENT MODULE ---\n");
-    printf("Available Vehicle Types:\n\n");
-
+    printf("\n--- VEHICLE MANAGEMENT ---\n");
     printf("%-10s %-12s %-15s %-12s %-15s\n",
            "Type", "Capacity(kg)", "Rate/km(LKR)", "Speed(km/h)", "Efficiency(km/l)");
     printf("------------------------------------------------------------------------\n");
@@ -268,78 +306,23 @@ void vehicleManagement() {
                vehicles[i].avg_speed,
                vehicles[i].fuel_efficiency);
     }
-
-    printf("\nVehicle Specifications:\n");
-    printf("• Van: Light deliveries, high efficiency\n");
-    printf("• Truck: Medium capacity, balanced performance\n");
-    printf("• Lorry: Heavy cargo, maximum capacity\n");
-    printf("\nFeature implementation: READY\n");
 }
 
 void deliveryRequest() {
-    printf("\n--- DELIVERY REQUEST MODULE ---\n");
-    printf("Delivery System Status:\n");
-    printf("• Maximum Capacity: %d deliveries\n", MAX_DELIVERIES);
-    printf("• Current Deliveries: %d records\n", delivery_count);
-    printf("• Available Capacity: %d deliveries\n", MAX_DELIVERIES - delivery_count);
-
-    printf("\nDelivery Process Flow:\n");
-    printf("1. Select source and destination cities\n");
-    printf("2. Enter package weight\n");
-    printf("3. Choose appropriate vehicle type\n");
-    printf("4. Calculate optimal route and costs\n");
-    printf("5. Confirm and record delivery\n");
-
-    printf("\nCost Calculation Components:\n");
-    printf("• Base delivery cost with weight factor\n");
-    printf("• Fuel consumption and cost calculation\n");
-    printf("• Operational costs and profit margin\n");
-    printf("• Final customer charge\n");
-    printf("\nFeature implementation: IN PROGRESS\n");
+    printf("\n--- DELIVERY REQUEST ---\n");
+    printf("Feature coming soon...\n");
 }
 
 void performanceReports() {
-    printf("\n--- PERFORMANCE REPORTS MODULE ---\n");
-    printf("Reporting Capabilities:\n\n");
-
-    printf("Delivery Metrics:\n");
-    printf("• Total deliveries completed\n");
-    printf("• Total distance covered\n");
-    printf("• Average delivery time\n");
-    printf("• Total revenue and profit\n");
-    printf("• Longest and shortest routes\n");
-
-    printf("\nCurrent Statistics:\n");
-    printf("• Completed Deliveries: %d\n", delivery_count);
-    printf("• System Utilization: %.1f%%\n", (delivery_count * 100.0) / MAX_DELIVERIES);
-    printf("• Available Reports: Basic metrics ready\n");
-
-    printf("\nFeature implementation: IN PROGRESS\n");
+    printf("\n--- PERFORMANCE REPORTS ---\n");
+    printf("Feature coming soon...\n");
 }
 
 void saveData() {
-    printf("\n--- DATA PERSISTENCE MODULE ---\n");
-    printf("File Storage System:\n\n");
-
-    printf("Data Files to be Created:\n");
-    printf("• routes.txt - City list and distance matrix\n");
-    printf("• deliveries.txt - Delivery history and costs\n");
-    printf("• system_config.txt - Vehicle specifications and settings\n");
-
-    printf("\nStorage Status:\n");
-    printf("• Cities data: Ready to save (%d cities)\n", city_count);
-    printf("• Distance matrix: Ready to save\n");
-    printf("• Vehicle data: Ready to save (%d types)\n", 3);
-    printf("• Delivery records: Ready to save (%d records)\n", delivery_count);
-
-    printf("\nFile Operations:\n");
-    printf("• Automatic load on program start\n");
-    printf("• Automatic save on program exit\n");
-    printf("• Manual save option available\n");
-    printf("\nFeature implementation: IN PROGRESS\n");
+    printf("\n--- SAVE DATA ---\n");
+    printf("Feature coming soon...\n");
 }
 
 void loadData() {
-
-    printf("Data loading system ready for implementation.\n");
+    printf("Data loading feature coming soon...\n");
 }
