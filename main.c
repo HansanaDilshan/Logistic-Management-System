@@ -55,11 +55,6 @@ void removeCity();
 void displayCities();
 
 int main() {
-    printf("\n========================================\n");
-    printf("   LOGISTICS MANAGEMENT SYSTEM\n");
-    printf("========================================\n");
-    printf("Initializing system...\n");
-
     initializeSystem();
 
     int choice;
@@ -135,8 +130,6 @@ void initializeSystem() {
     distances[0][3] = distances[3][0] = 400;
     distances[1][2] = distances[2][1] = 200;
     distances[1][3] = distances[3][1] = 350;
-
-    printf("System initialized successfully!\n");
 }
 
 void displayMainMenu() {
@@ -179,7 +172,6 @@ void cityManagement() {
                 displayCities();
                 break;
             case 5:
-                printf("Returning to main menu...\n");
                 break;
             default:
                 printf("Invalid choice! Please try again.\n");
@@ -210,69 +202,11 @@ void addCity() {
 }
 
 void renameCity() {
-    if(city_count == 0) {
-        printf("No cities available!\n");
-        return;
-    }
-
-    displayCities();
-    int index;
-    printf("Enter city index to rename: ");
-    scanf("%d", &index);
-
-    if(index < 0 || index >= city_count) {
-        printf("Invalid city index!\n");
-        return;
-    }
-
-    char newName[MAX_NAME_LENGTH];
-    printf("Enter new name for %s: ", cities[index]);
-    scanf(" %[^\n]", newName);
-
-    for(int i = 0; i < city_count; i++) {
-        if(i != index && strcmp(cities[i], newName) == 0) {
-            printf("City '%s' already exists!\n", newName);
-            return;
-        }
-    }
-
-    printf("City '%s' renamed to '%s'\n", cities[index], newName);
-    strcpy(cities[index], newName);
+    printf("Rename city feature coming soon...\n");
 }
 
 void removeCity() {
-    if(city_count == 0) {
-        printf("No cities available!\n");
-        return;
-    }
-
-    displayCities();
-    int index;
-    printf("Enter city index to remove: ");
-    scanf("%d", &index);
-
-    if(index < 0 || index >= city_count) {
-        printf("Invalid city index!\n");
-        return;
-    }
-
-    printf("City '%s' removed successfully!\n", cities[index]);
-
-    for(int i = index; i < city_count - 1; i++) {
-        strcpy(cities[i], cities[i + 1]);
-    }
-    city_count--;
-
-    for(int i = index; i < city_count; i++) {
-        for(int j = 0; j < MAX_CITIES; j++) {
-            distances[i][j] = distances[i + 1][j];
-        }
-    }
-    for(int j = index; j < city_count; j++) {
-        for(int i = 0; i < MAX_CITIES; i++) {
-            distances[i][j] = distances[i][j + 1];
-        }
-    }
+    printf("Remove city feature coming soon...\n");
 }
 
 void displayCities() {
@@ -324,5 +258,4 @@ void saveData() {
 }
 
 void loadData() {
-    printf("Data loading feature coming soon...\n");
 }
