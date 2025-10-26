@@ -55,6 +55,8 @@ void removeCity();
 void displayCities();
 void inputDistance();
 void displayDistanceTable();
+void findLeastCostRoute(int source, int destination, int* path, int* path_length, float* min_distance);
+float calculateDeliveryCost(int source, int destination, int vehicle_type, float weight);
 
 int main() {
     initializeSystem();
@@ -383,8 +385,151 @@ void vehicleManagement() {
 }
 
 void deliveryRequest() {
-    printf("\n--- DELIVERY REQUEST ---\n");
-    printf("Feature coming soon...\n");
+    if(city_count < 2) {
+        printf("Need at least 2 cities for delivery!\n");
+        return;
+    }
+
+    if(delivery_count >= MAX_DELIVERIES) {
+        printf("Maximum delivery limit reached!\n");
+        return;
+    }
+
+    displayCities();
+    int source, destination, vehicle_type;
+    float weight;
+
+    printf("Enter source city index: ");
+    scanf("%d", &source);
+    printf("Enter destination city index: ");
+    scanf("%d", &destination);
+
+    if(source < 0 || source >= city_count || destination < 0 || destination >= city_count) {
+        printf("Invalid city indices!\n");
+        return;
+    }
+
+    if(source == destination) {
+        printf("Source and destination cannot be the same!\n");
+        return;
+    }
+
+    printf("Enter package weight (kg): ");
+    scanf("%f", &weight);
+
+    if(weight <= 0) {
+        printf("Weight must be positive!\n");
+        return;
+    }
+
+    vehicleManagement();
+    printf("Select vehicle type (1=Van, 2=Truck, 3=Lorry): ");
+    scanf("%d", &vehicle_type);
+
+    if(vehicle_type < 1 || vehicle_type > 3) {
+        printf("Invalid vehicle type!\n");
+        return;
+    }
+
+    if(weight > vehicles[vehicle_type - 1].capacity) {
+        printf("Weight exceeds vehicle capacity! Maximum: %d kg\n", vehicles[vehicle_type - 1].capacity);
+        return;
+    }
+
+    int path[MAX_CITIES];
+    int path_length = 0;
+    float min_distance = 0;
+
+    findLeastCostRoute(source, destination, path, &path_length, &min_distance);
+
+    if(min_distance == 0) {
+        printf("No valid route found between %s and %s!\n", cities[source], cities[destination]);
+        return;
+    }
+
+    float base_cost = min_distance * vehicles[vehicle_type - 1].rate_per_km * (1 + weight / 10000.0);
+    float fuel_used = min_distance / vehicles[vehicle_type - 1].fuel_efficiency;
+    float fuel_cost = fuel_used * FUEL_PRICE;
+    float operational_cost = base_cost + fuel_cost;
+    float profit = base_cost * 0.25;
+    float customer_charge = operational_cost + profit;
+    float delivery_time = min_distance / vehicles[vehicle_type - 1].avg_speed;
+
+    printf("\n==============================================================\n");
+    printf("DELIVERY COST ESTIMATION\n");
+    printf("==============================================================\n");
+    printf("From: %s\n", cities[source]);
+    printf("To: %s\n", cities[destination]);
+    printf("Route: ");
+    for(int i = 0; i < path_length; i++) {
+        printf("%s", cities[path[i]]);
+        if(i < path_length - 1) printf(" → ");
+    }
+    printf("\n");
+    printf("Minimum Distance: %.2f km\n", min_distance);
+    printf("Vehicle: %s\n", vehicles[vehicle_type - 1].type);
+    printf("Weight: %.2f kg\n", weight);
+    printf("==============================================================\n");
+    printf("Base Cost: %.2f LKR\n", base_cost);
+    printf("Fuel Used: %.2f L\n", fuel_used);
+    printf("Fuel Cost: %.2f LKR\n", fuel_cost);
+    printf("Operational Cost: %.2f LKR\n", operational_cost);
+    printf("Profit: %.2f LKR\n", profit);
+    printf("Customer Charge: %.2f LKR\n", customer_charge);
+    printf("Estimated Time: %.2f hours\n", delivery_time);
+    printf("==============================================================\n");
+}
+
+void findLeastCostRoute(int source, int destination, int* path, int* path_length, float* min_distance) {
+    if(distances[source][destination] > 0) {
+        path[0] = source;
+        path[1] = destination;
+        *path_length = 2;
+        *min_distance = distances[source][destination];
+        return;
+    }
+
+    for(int i = 0; i < city_count; i++) {
+        if(i != source && i != destination &&
+           distances[source][i] > 0 && distances[i][destination] > 0) {
+
+            float total_distance = distances[source][i] + distances[i][destination];
+
+            if(*min_distance == 0 || total_distance < *min_distance) {
+                *min_distance = total_distance;
+                path[0] = source;
+                path[1] = i;
+                path[2] = destination;
+                *path_length = 3;
+            }
+        }
+    }
+
+    if(*min_distance == 0) {
+        for(int i = 0; i < city_count; i++) {
+            for(int j = 0; j < city_count; j++) {
+                if(i != source && i != destination && j != source && j != destination && i != j &&
+                   distances[source][i] > 0 && distances[i][j] > 0 && distances[j][destination] > 0) {
+
+                    float total_distance = distances[source][i] + distances[i][j] + distances[j][destination];
+
+                    if(*min_distance == 0 || total_distance < *min_distance) {
+                        *min_distance = total_distance;
+                        path[0] = source;
+                        path[1] = i;
+                        path[2] = j;
+                        path[3] = destination;
+                        *path_length = 4;
+                    }
+                }
+            }
+        }
+    }
+}
+
+float calculateDeliveryCost(int source, int destination, int vehicle_type, float weight) {
+    float distance = distances[source][destination];
+    return distance * vehicles[vehicle_type - 1].rate_per_km * (1 + weight / 10000.0);
 }
 
 void performanceReports() {
