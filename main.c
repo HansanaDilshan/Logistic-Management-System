@@ -57,15 +57,21 @@ void inputDistance();
 void displayDistanceTable();
 void findLeastCostRoute(int source, int destination, int* path, int* path_length, float* min_distance);
 void completeDelivery(int source, int destination, int vehicle_type, float weight, float distance);
+int findCityIndex(char* cityName);
 
 int main() {
     initializeSystem();
+    loadData();
 
     int choice;
     do {
         displayMainMenu();
         printf("Enter your choice: ");
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1) {
+            printf("Invalid input! Please enter a number.\n");
+            while(getchar() != '\n');
+            continue;
+        }
 
         switch(choice) {
             case 1:
@@ -85,13 +91,14 @@ int main() {
                 break;
             case 6:
                 saveData();
+                printf("Data saved successfully!\n");
                 break;
             case 7:
                 saveData();
                 printf("Thank you for using Logistics Management System!\n");
                 break;
             default:
-                printf("Invalid choice! Please try again.\n");
+                printf("Invalid choice! Please enter 1-7.\n");
         }
     } while(choice != 7);
 
@@ -160,7 +167,11 @@ void cityManagement() {
         printf("4. Display Cities\n");
         printf("5. Back to Main Menu\n");
         printf("Enter your choice: ");
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1) {
+            printf("Invalid input! Please enter a number.\n");
+            while(getchar() != '\n');
+            continue;
+        }
 
         switch(choice) {
             case 1:
@@ -185,7 +196,7 @@ void cityManagement() {
 
 void addCity() {
     if(city_count >= MAX_CITIES) {
-        printf("Maximum number of cities reached!\n");
+        printf("Maximum number of cities reached! Cannot add more.\n");
         return;
     }
 
@@ -207,17 +218,21 @@ void addCity() {
 
 void renameCity() {
     if(city_count == 0) {
-        printf("No cities available!\n");
+        printf("No cities available to rename!\n");
         return;
     }
 
     displayCities();
     int index;
     printf("Enter city index to rename: ");
-    scanf("%d", &index);
+    if(scanf("%d", &index) != 1) {
+        printf("Invalid input!\n");
+        while(getchar() != '\n');
+        return;
+    }
 
     if(index < 0 || index >= city_count) {
-        printf("Invalid city index!\n");
+        printf("Invalid city index! Please enter 0 to %d.\n", city_count-1);
         return;
     }
 
@@ -238,17 +253,21 @@ void renameCity() {
 
 void removeCity() {
     if(city_count == 0) {
-        printf("No cities available!\n");
+        printf("No cities available to remove!\n");
         return;
     }
 
     displayCities();
     int index;
     printf("Enter city index to remove: ");
-    scanf("%d", &index);
+    if(scanf("%d", &index) != 1) {
+        printf("Invalid input!\n");
+        while(getchar() != '\n');
+        return;
+    }
 
     if(index < 0 || index >= city_count) {
-        printf("Invalid city index!\n");
+        printf("Invalid city index! Please enter 0 to %d.\n", city_count-1);
         return;
     }
 
@@ -291,7 +310,11 @@ void distanceManagement() {
         printf("2. Display Distance Table\n");
         printf("3. Back to Main Menu\n");
         printf("Enter your choice: ");
-        scanf("%d", &choice);
+        if(scanf("%d", &choice) != 1) {
+            printf("Invalid input! Please enter a number.\n");
+            while(getchar() != '\n');
+            continue;
+        }
 
         switch(choice) {
             case 1:
@@ -319,12 +342,20 @@ void inputDistance() {
     float distance;
 
     printf("Enter source city index: ");
-    scanf("%d", &city1);
+    if(scanf("%d", &city1) != 1) {
+        printf("Invalid input!\n");
+        while(getchar() != '\n');
+        return;
+    }
     printf("Enter destination city index: ");
-    scanf("%d", &city2);
+    if(scanf("%d", &city2) != 1) {
+        printf("Invalid input!\n");
+        while(getchar() != '\n');
+        return;
+    }
 
     if(city1 < 0 || city1 >= city_count || city2 < 0 || city2 >= city_count) {
-        printf("Invalid city indices!\n");
+        printf("Invalid city indices! Please enter 0 to %d.\n", city_count-1);
         return;
     }
 
@@ -334,7 +365,11 @@ void inputDistance() {
     }
 
     printf("Enter distance between %s and %s (km): ", cities[city1], cities[city2]);
-    scanf("%f", &distance);
+    if(scanf("%f", &distance) != 1) {
+        printf("Invalid distance input!\n");
+        while(getchar() != '\n');
+        return;
+    }
 
     if(distance < 0) {
         printf("Distance cannot be negative!\n");
@@ -391,7 +426,7 @@ void deliveryRequest() {
     }
 
     if(delivery_count >= MAX_DELIVERIES) {
-        printf("Maximum delivery limit reached!\n");
+        printf("Maximum delivery limit reached! Cannot process more deliveries.\n");
         return;
     }
 
@@ -400,12 +435,20 @@ void deliveryRequest() {
     float weight;
 
     printf("Enter source city index: ");
-    scanf("%d", &source);
+    if(scanf("%d", &source) != 1) {
+        printf("Invalid input!\n");
+        while(getchar() != '\n');
+        return;
+    }
     printf("Enter destination city index: ");
-    scanf("%d", &destination);
+    if(scanf("%d", &destination) != 1) {
+        printf("Invalid input!\n");
+        while(getchar() != '\n');
+        return;
+    }
 
     if(source < 0 || source >= city_count || destination < 0 || destination >= city_count) {
-        printf("Invalid city indices!\n");
+        printf("Invalid city indices! Please enter 0 to %d.\n", city_count-1);
         return;
     }
 
@@ -415,7 +458,11 @@ void deliveryRequest() {
     }
 
     printf("Enter package weight (kg): ");
-    scanf("%f", &weight);
+    if(scanf("%f", &weight) != 1) {
+        printf("Invalid weight input!\n");
+        while(getchar() != '\n');
+        return;
+    }
 
     if(weight <= 0) {
         printf("Weight must be positive!\n");
@@ -424,10 +471,14 @@ void deliveryRequest() {
 
     vehicleManagement();
     printf("Select vehicle type (1=Van, 2=Truck, 3=Lorry): ");
-    scanf("%d", &vehicle_type);
+    if(scanf("%d", &vehicle_type) != 1) {
+        printf("Invalid input!\n");
+        while(getchar() != '\n');
+        return;
+    }
 
     if(vehicle_type < 1 || vehicle_type > 3) {
-        printf("Invalid vehicle type!\n");
+        printf("Invalid vehicle type! Please enter 1, 2, or 3.\n");
         return;
     }
 
@@ -607,9 +658,102 @@ void performanceReports() {
 }
 
 void saveData() {
-    printf("\n--- SAVE DATA ---\n");
-    printf("Feature coming soon...\n");
+    FILE *file;
+
+    file = fopen("routes.txt", "w");
+    if(file) {
+        fprintf(file, "%d\n", city_count);
+        for(int i = 0; i < city_count; i++) {
+            fprintf(file, "%s\n", cities[i]);
+        }
+
+        for(int i = 0; i < city_count; i++) {
+            for(int j = 0; j < city_count; j++) {
+                fprintf(file, "%.2f ", distances[i][j]);
+            }
+            fprintf(file, "\n");
+        }
+        fclose(file);
+    }
+
+    file = fopen("deliveries.txt", "w");
+    if(file) {
+        fprintf(file, "%d\n", delivery_count);
+        for(int i = 0; i < delivery_count; i++) {
+            fprintf(file, "%d,%s,%s,%.2f,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d\n",
+                   deliveries[i].id,
+                   deliveries[i].source,
+                   deliveries[i].destination,
+                   deliveries[i].weight,
+                   deliveries[i].vehicle_type,
+                   deliveries[i].distance,
+                   deliveries[i].base_cost,
+                   deliveries[i].fuel_used,
+                   deliveries[i].fuel_cost,
+                   deliveries[i].operational_cost,
+                   deliveries[i].profit,
+                   deliveries[i].customer_charge,
+                   deliveries[i].delivery_time,
+                   deliveries[i].completed);
+        }
+        fclose(file);
+    }
 }
 
 void loadData() {
+    FILE *file;
+    char buffer[256];
+
+    file = fopen("routes.txt", "r");
+    if(file) {
+        fscanf(file, "%d", &city_count);
+        fgetc(file);
+
+        for(int i = 0; i < city_count; i++) {
+            fgets(cities[i], MAX_NAME_LENGTH, file);
+            cities[i][strcspn(cities[i], "\n")] = 0;
+        }
+
+        for(int i = 0; i < city_count; i++) {
+            for(int j = 0; j < city_count; j++) {
+                fscanf(file, "%f", &distances[i][j]);
+            }
+        }
+        fclose(file);
+    }
+
+    file = fopen("deliveries.txt", "r");
+    if(file) {
+        fscanf(file, "%d", &delivery_count);
+        fgetc(file);
+
+        for(int i = 0; i < delivery_count; i++) {
+            fgets(buffer, sizeof(buffer), file);
+            sscanf(buffer, "%d,%[^,],%[^,],%f,%[^,],%f,%f,%f,%f,%f,%f,%f,%f,%d",
+                   &deliveries[i].id,
+                   deliveries[i].source,
+                   deliveries[i].destination,
+                   &deliveries[i].weight,
+                   deliveries[i].vehicle_type,
+                   &deliveries[i].distance,
+                   &deliveries[i].base_cost,
+                   &deliveries[i].fuel_used,
+                   &deliveries[i].fuel_cost,
+                   &deliveries[i].operational_cost,
+                   &deliveries[i].profit,
+                   &deliveries[i].customer_charge,
+                   &deliveries[i].delivery_time,
+                   &deliveries[i].completed);
+        }
+        fclose(file);
+    }
+}
+
+int findCityIndex(char* cityName) {
+    for(int i = 0; i < city_count; i++) {
+        if(strcmp(cities[i], cityName) == 0) {
+            return i;
+        }
+    }
+    return 0;
 }
